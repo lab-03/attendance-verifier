@@ -4,6 +4,24 @@ import Util from "../utils/Utils";
 const util = new Util();
 
 class Controller {
+  async getAllQrCodes(req, res) {
+    await request.get("http://localhost:5000/api/qrcodes/", function(
+      err,
+      response,
+      body
+    ) {
+      if (response.statusCode === 200) {
+        util.setSuccess(
+          response.statusCode,
+          JSON.parse(body).message,
+          JSON.parse(body).data
+        );
+      } else if (err || response.statusCode !== 200) {
+        util.setError(response.statusCode, JSON.parse(body).message);
+      }
+      return util.send(res);
+    });
+  }
   async getQrCode(req, res) {
     const { body } = req;
     await request.post(
@@ -25,7 +43,7 @@ class Controller {
   }
   async attend(req, res) {
     const { body } = req;
-    await request.get(
+    await request.post(
       "http://localhost:5000/api/qrcodes/attend",
       { form: body },
       function(err, response, body) {

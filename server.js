@@ -7,16 +7,18 @@ var cors = require("cors");
 // This line is from the Node.js HTTPS documentation.
 // var options = {};
 
-const app = express();
-app.use(cors());
+const server = express();
+server.use(cors());
 
-// Configure app to user bodyParser & the routes
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/api", routes);
+// Configure server to user bodyParser & the routes
+server.use(bodyParser.json());
+server.use(bodyParser.urlencoded({ extended: false }));
+server.use("/api/qrcodes", routes);
 
 // create a server using port 5000
 const PORT = process.env.PORT || 8888;
-http.createServer(app).listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("server is running on port " + PORT);
 });
+
+module.exports = server;

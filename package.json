@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js --exec babel-node --"
+    "test": "nyc mocha --require babel-register tests/integrationTests --exit",
+    "start": "export NODE_ENV=production && cd database/ && sequelize db:migrate:undo:all && sequelize db:migrate && cd .. && babel-node --presets es2015 server.js",
+    "dev": "nodemon server.js --exec babel-node --"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,11 @@
     "sequelize": "^5.21.4"
   },
   "devDependencies": {
-    "nodemon": "^1.19.0"
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "crypto": "^1.0.1",
+    "mocha": "^7.1.1",
+    "nodemon": "^2.0.2",
+    "nyc": "^15.0.0"
   }
 }

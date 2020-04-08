@@ -13,7 +13,7 @@ server.use(cors());
 // Configure server to user bodyParser & the routes
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
-server.use("/api/qrcodes", routes);
+server.use("/api", routes);
 
 // create a server using port 5000
 const PORT = process.env.PORT || 8888;

@@ -2,9 +2,9 @@ import { Router } from "express";
 import Controller from "../controllers/controller";
 const routes = Router();
 
-routes.post("/qrcodes/attend", Controller.attendByQr);
-routes.post("/qrcodes/create", Controller.getQrCode);
-routes.post("/qrcodes/end", Controller.invalidate);
-routes.post("/fr", Controller.attendByFR);
+routes.post("/qrcodes/attend", (req, res) => Controller.attendByQr(req, res));
+routes.post("/qrcodes/create", (req, res) => Controller.getQrCode(req, res));
+routes.post("/qrcodes/end", (req, res) => Controller.invalidate(req, res));
+routes.post("/fr", (req, res) => Controller.attendByFR(req, res));
 
 export default routes;

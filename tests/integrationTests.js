@@ -146,7 +146,7 @@ describe("POST /api/qrcodes/end", () => {
       .send(data)
       .end((err, res) => {
         res.should.have.status(200);
-        assert.equal(res.body.message, "QrCode is no longer valid");
+        assert.equal(res.body.message, "QrCode has been invalidated");
         if (err) done(err);
         else done();
       });

@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "nyc mocha --require babel-register tests/integrationTests --exit",
+    "test": "nyc mocha --timeout 15000 --require babel-register tests/integrationTests --exit",
     "start": "export NODE_ENV=production && babel-node --presets es2015 server.js",
     "dev": "nodemon server.js --exec babel-node --"
   },

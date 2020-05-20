@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "nyc mocha --require babel-register tests/integrationTests --exit",
-    "start": "export NODE_ENV=production && cd database/ && sequelize db:migrate:undo:all && sequelize db:migrate && cd .. && babel-node --presets es2015 server.js",
+    "start": "export NODE_ENV=production && babel-node --presets es2015 server.js",
     "dev": "nodemon server.js --exec babel-node --"
   },
   "author": "",
@@ -17,15 +17,15 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "path": "^0.12.7",
-    "request": "^2.88.0",
-    "sequelize": "^5.21.4"
+    "request": "^2.88.2",
+    "sequelize": "^5.21.10"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "crypto": "^1.0.1",
-    "mocha": "^7.1.1",
-    "nodemon": "^2.0.2",
-    "nyc": "^15.0.0"
+    "mocha": "^7.1.2",
+    "nodemon": "^2.0.4",
+    "nyc": "^15.0.1"
   }
 }

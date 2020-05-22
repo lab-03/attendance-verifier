@@ -11,14 +11,13 @@ class Controller {
     };
     if (method !== "get" && body)
       options = Object.assign({ body: JSON.stringify(body) }, options);
-    console.log(options);
     fetch(url, options)
       .then(response => {
         statusCode = response.status;
         return response.json();
       })
       .then(response => {
-        if (response.status === "success")
+        if (statusCode === 200)
           util.setSuccess(statusCode, response.message, response.data);
         else util.setError(statusCode, response.message);
         console.log(response.message);
@@ -60,18 +59,19 @@ class Controller {
   attendByFR(req, res) {
     let options = {
       method: "POST",
-      url: "https://fr-api.herokuapp.com/verify",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req.body)
     };
-    fetch(url, options)
+    let statusCode = 200;
+    fetch("https://fr-api.herokuapp.com/verify", options)
       .then(response => {
-        response.json();
+        statusCode = response.status;
+        return response.json();
       })
       .then(response => {
-        const temp = JSON.parse(response.body).same_person;
+        const temp = response.same_person;
         if (temp === true) {
-          util.setSuccess(response.statusCode, temp);
+          util.setSuccess(statusCode, temp);
         } else if (temp === false) {
           util.setError(400, temp);
         }

@@ -1,9 +1,12 @@
 import fetch from "node-fetch";
 import Util from "../utils/Utils";
+import "../database/models/index";
+import EventEmitter from "events";
+import attendeesModel from "../database/models/attendees";
 const util = new Util();
 
-class Controller {
-  request(url, method, body, res) {
+class Controller extends EventEmitter {
+  request(url, method, body, res, func = null) {
     let statusCode = 200;
     let options = {
       method,
@@ -17,9 +20,10 @@ class Controller {
         return response.json();
       })
       .then(response => {
-        if (statusCode === 200)
+        if (statusCode === 200) {
           util.setSuccess(statusCode, response.message, response.data);
-        else util.setError(statusCode, response.message);
+          if (func === "attendByQr") this.saveAndNotify(body);
+        } else util.setError(statusCode, response.message);
         console.log(response.message);
         return util.send(res);
       })
@@ -29,8 +33,24 @@ class Controller {
         return util.send(res);
       });
   }
+  saveAndNotify({ hash, student }) {
+    let attendee = new attendeesModel({
+      id: student.id,
+      name: student.name,
+      hash,
+      FRScore: student.FRScore
+    });
+    attendee.save((err, attendee) => {
+      if (err) throw err;
+      this.emit("send attendee", { attendee });
+      console.log("emitted", { attendee });
+      return 1;
+    });
+  }
   getQrCode(req, res) {
     const { body } = req;
+    console.log(body);
+
     this.request(
       "https://gp-qrcode.herokuapp.com/api/qrcodes/create",
       "post",
@@ -53,7 +73,8 @@ class Controller {
       "https://gp-qrcode.herokuapp.com/api/qrcodes/attend",
       "post",
       body,
-      res
+      res,
+      "attendByQr"
     );
   }
   attendByFR(req, res) {
@@ -84,5 +105,5 @@ class Controller {
       });
   }
 }
-const mainController = new Controller();
-export default mainController;
+const controller = new Controller();
+export default controller;

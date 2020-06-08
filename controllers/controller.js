@@ -23,6 +23,7 @@ class Controller extends EventEmitter {
         if (statusCode === 200) {
           util.setSuccess(statusCode, response.message, response.data);
           if (func === "attendByQr") this.saveAndNotify(body);
+          else if (func === "invalidate") this.sendEndEvent(body);
         } else util.setError(statusCode, response.message);
         console.log(response.message);
         return util.send(res);
@@ -32,6 +33,10 @@ class Controller extends EventEmitter {
         util.setError(500, "OOps! something happened");
         return util.send(res);
       });
+  }
+  sendEndEvent({ hash }) {
+    this.emit("end", hash);
+    return 1;
   }
   saveAndNotify({ hash, student }) {
     let attendee = new attendeesModel({
@@ -43,7 +48,6 @@ class Controller extends EventEmitter {
     attendee.save((err, attendee) => {
       if (err) throw err;
       this.emit("send attendee", { attendee });
-      console.log("emitted", { attendee });
       return 1;
     });
   }
@@ -64,7 +68,8 @@ class Controller extends EventEmitter {
       "https://gp-qrcode.herokuapp.com/api/qrcodes/end",
       "post",
       body,
-      res
+      res,
+      "invalidate"
     );
   }
   attendByQr(req, res) {

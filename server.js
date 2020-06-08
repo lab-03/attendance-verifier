@@ -20,11 +20,18 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 io.on("connection", socket => {
-  console.log("socket connected");
-  controller.on("send attendee", ({ attendee }) => {
-    socket.emit(attendee.hash, attendee);
-    console.log("sent:", attendee.hash, attendee);
-  });
+  console.log("socket connected", socket.id);
+  controller
+    .on("send attendee", ({ attendee }) => {
+      socket.emit(attendee.hash, attendee);
+      console.log("sent:", attendee.hash, attendee);
+    })
+    .on("end", hash => {
+      if (socket.connected) {
+        socket.disconnect();
+        console.log("disconnected client", socket.id);
+      }
+    });
 });
 
 // create a server using port 8888

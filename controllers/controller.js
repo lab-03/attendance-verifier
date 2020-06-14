@@ -23,7 +23,6 @@ class Controller extends EventEmitter {
         if (statusCode === 200) {
           util.setSuccess(statusCode, response.message, response.data);
           if (func === "attendByQr") this.saveAndNotify(body);
-          else if (func === "invalidate") this.sendEndEvent(body);
         } else util.setError(statusCode, response.message);
         console.log(response.message);
         return util.send(res);
@@ -34,22 +33,70 @@ class Controller extends EventEmitter {
         return util.send(res);
       });
   }
-  sendEndEvent({ hash }) {
-    this.emit("end", hash);
-    return 1;
-  }
-  saveAndNotify({ hash, student }) {
+  async saveAndNotify({ hash, newAttendee }) {
     let attendee = new attendeesModel({
-      id: student.id,
-      name: student.name,
+      id: newAttendee.id,
+      name: newAttendee.name,
       hash,
-      FRScore: student.FRScore
+      FRScore: newAttendee.FRScore || 100
     });
-    attendee.save((err, attendee) => {
-      if (err) throw err;
-      this.emit("send attendee", { attendee });
+    let res = await attendeesModel.find(
+      { id: attendee.id, hash: attendee.hash },
+      (err, res) => {
+        return res;
+      }
+    );
+    console.log("res: ", res.length);
+    if (res.length === 0) {
+      attendee.save(err => {
+        if (err) throw err;
+        this.emit("send attendee", attendee);
+      });
       return 1;
-    });
+    } else return 0;
+  }
+
+  async updateAttendee(oldAttendee, updatedAttendee) {
+    console.log("updating", oldAttendee);
+    try {
+      const res = await attendeesModel.updateOne(
+        { _id: oldAttendee._id },
+        updatedAttendee,
+        (err, res) => {
+          console.log(`updated ${res.nModified} records`);
+          if (err) throw err;
+        }
+      );
+      if (res.ok) return 1;
+      return 0;
+    } catch (err) {
+      console.err(err);
+      return 0;
+    }
+  }
+  async deleteAttendee(attendee) {
+    console.log("deleting", attendee);
+    try {
+      const res = await attendeesModel.deleteOne(attendee, (err, res) => {
+        if (err) throw err;
+      });
+      if (res.ok) return 1;
+      return 0;
+    } catch (err) {
+      console.error(err);
+      return 0;
+    }
+  }
+  getAttendees(hash) {
+    try {
+      attendeesModel.find({ hash }, (err, res) => {
+        if (err) throw err;
+        if (res.length) this.emit("send attendees", res);
+      });
+    } catch (err) {
+      console.error(err);
+      return 0;
+    }
   }
   getQrCode(req, res) {
     const { body } = req;
@@ -68,8 +115,7 @@ class Controller extends EventEmitter {
       "https://gp-qrcode.herokuapp.com/api/qrcodes/end",
       "post",
       body,
-      res,
-      "invalidate"
+      res
     );
   }
   attendByQr(req, res) {

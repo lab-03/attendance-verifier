@@ -1,9 +1,12 @@
 import fetch from "node-fetch";
 import Util from "../utils/Utils";
+import "../database/models/index";
+import EventEmitter from "events";
+import attendeesModel from "../database/models/attendees";
 const util = new Util();
 
-class Controller {
-  request(url, method, body, res) {
+class Controller extends EventEmitter {
+  request(url, method, body, res, func = null) {
     let statusCode = 200;
     let options = {
       method,
@@ -17,9 +20,10 @@ class Controller {
         return response.json();
       })
       .then(response => {
-        if (statusCode === 200)
+        if (statusCode === 200) {
           util.setSuccess(statusCode, response.message, response.data);
-        else util.setError(statusCode, response.message);
+          if (func === "attendByQr") this.saveAndNotify(body);
+        } else util.setError(statusCode, response.message);
         console.log(response.message);
         return util.send(res);
       })
@@ -29,8 +33,75 @@ class Controller {
         return util.send(res);
       });
   }
+  async saveAndNotify({ hash, newAttendee }) {
+    let attendee = new attendeesModel({
+      id: newAttendee.id,
+      name: newAttendee.name,
+      hash,
+      FRScore: newAttendee.FRScore || 100
+    });
+    let res = await attendeesModel.find(
+      { id: attendee.id, hash: attendee.hash },
+      (err, res) => {
+        return res;
+      }
+    );
+    console.log("res: ", res.length);
+    if (res.length === 0) {
+      attendee.save(err => {
+        if (err) throw err;
+        this.emit("send attendee", attendee);
+      });
+      return 1;
+    } else return 0;
+  }
+
+  async updateAttendee(oldAttendee, updatedAttendee) {
+    console.log("updating", oldAttendee);
+    try {
+      const res = await attendeesModel.updateOne(
+        { _id: oldAttendee._id },
+        updatedAttendee,
+        (err, res) => {
+          console.log(`updated ${res.nModified} records`);
+          if (err) throw err;
+        }
+      );
+      if (res.ok) return 1;
+      return 0;
+    } catch (err) {
+      console.err(err);
+      return 0;
+    }
+  }
+  async deleteAttendee(attendee) {
+    console.log("deleting", attendee);
+    try {
+      const res = await attendeesModel.deleteOne(attendee, (err, res) => {
+        if (err) throw err;
+      });
+      if (res.ok) return 1;
+      return 0;
+    } catch (err) {
+      console.error(err);
+      return 0;
+    }
+  }
+  getAttendees(hash) {
+    try {
+      attendeesModel.find({ hash }, (err, res) => {
+        if (err) throw err;
+        if (res.length) this.emit("send attendees", res);
+      });
+    } catch (err) {
+      console.error(err);
+      return 0;
+    }
+  }
   getQrCode(req, res) {
     const { body } = req;
+    console.log(body);
+
     this.request(
       "https://gp-qrcode.herokuapp.com/api/qrcodes/create",
       "post",
@@ -53,7 +124,8 @@ class Controller {
       "https://gp-qrcode.herokuapp.com/api/qrcodes/attend",
       "post",
       body,
-      res
+      res,
+      "attendByQr"
     );
   }
   attendByFR(req, res) {
@@ -84,5 +156,5 @@ class Controller {
       });
   }
 }
-const mainController = new Controller();
-export default mainController;
+const controller = new Controller();
+export default controller;

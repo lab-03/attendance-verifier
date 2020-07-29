@@ -1,78 +1,87 @@
-const request = require("request");
+import fetch from "node-fetch";
 import Util from "../utils/Utils";
 const util = new Util();
-const fs = require("fs");
-const path = require("path");
 
 class Controller {
-  async getAllQrCodes(req, res) {
-    await request.get("http://localhost:5000/api/qrcodes/", function (
-      err,
-      response,
-      body
-    ) {
-      if (response.statusCode === 200) {
-        util.setSuccess(
-          response.statusCode,
-          JSON.parse(body).message,
-          JSON.parse(body).data
-        );
-      } else if (err || response.statusCode !== 200) {
-        util.setError(response.statusCode, JSON.parse(body).message);
-      }
-      return util.send(res);
-    });
-  }
-  async getQrCode(req, res) {
-    const { body } = req;
-    await request.post(
-      "http://localhost:5000/api/qrcodes/create",
-      { form: body },
-      function (err, response, body) {
-        if (response.statusCode === 200) {
-          util.setSuccess(
-            response.statusCode,
-            JSON.parse(body).message,
-            JSON.parse(body).data
-          );
-        } else if (err || response.statusCode !== 200) {
-          util.setError(response.statusCode, JSON.parse(body).message);
-        }
-        return util.send(res);
-      }
-    );
-  }
-  async attend(req, res) {
-    const { body } = req;
-    await request.post(
-      "http://localhost:5000/api/qrcodes/attend",
-      { form: body },
-      function (err, response, body) {
-        if (response.statusCode === 200) {
-          util.setSuccess(response.statusCode, JSON.parse(body).message);
-        } else if (err || response.statusCode !== 200) {
-          util.setError(response.statusCode, JSON.parse(body).message);
-        }
-        return util.send(res);
-      }
-    );
-  }
-  async attendByFR(req, res) {
-    var options = {
-      method: "POST",
-      url: "https://fr-api.herokuapp.com//verify",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(req.body),
+  request(url, method, body, res) {
+    let statusCode = 200;
+    let options = {
+      method,
+      headers: { "Content-Type": "application/json" }
     };
-    request(options, function (err, response) {
-      const temp = JSON.parse(response.body).same_person;
-      if (temp === true) {
-        util.setSuccess(response.statusCode, temp);
-      } else if (err || temp === false) {
-        util.setError(400, temp);
-      }
-      return util.send(res);
-    });
+    if (method !== "get" && body)
+      options = Object.assign({ body: JSON.stringify(body) }, options);
+    fetch(url, options)
+      .then(response => {
+        statusCode = response.status;
+        return response.json();
+      })
+      .then(response => {
+        if (statusCode === 200)
+          util.setSuccess(statusCode, response.message, response.data);
+        else util.setError(statusCode, response.message);
+        console.log(response.message);
+        return util.send(res);
+      })
+      .catch(err => {
+        console.error(err);
+        util.setError(500, "OOps! something happened");
+        return util.send(res);
+      });
+  }
+  getQrCode(req, res) {
+    const { body } = req;
+    this.request(
+      "https://gp-qrcode.herokuapp.com/api/qrcodes/create",
+      "post",
+      body,
+      res
+    );
+  }
+  invalidate(req, res) {
+    const { body } = req;
+    this.request(
+      "https://gp-qrcode.herokuapp.com/api/qrcodes/end",
+      "post",
+      body,
+      res
+    );
+  }
+  attendByQr(req, res) {
+    const { body } = req;
+    this.request(
+      "https://gp-qrcode.herokuapp.com/api/qrcodes/attend",
+      "post",
+      body,
+      res
+    );
+  }
+  attendByFR(req, res) {
+    let options = {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(req.body)
+    };
+    let statusCode = 200;
+    fetch("https://fr-api.herokuapp.com/verify", options)
+      .then(response => {
+        statusCode = response.status;
+        return response.json();
+      })
+      .then(response => {
+        const temp = response.same_person;
+        if (temp === true) {
+          util.setSuccess(statusCode, temp);
+        } else if (temp === false) {
+          util.setError(400, temp);
+        }
+        return util.send(res);
+      })
+      .catch(err => {
+        console.error(err);
+        util.setError(500, "OOps! something happened");
+        return util.send(res);
+      });
   }
 }
 const mainController = new Controller();

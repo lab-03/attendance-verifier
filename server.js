@@ -2,6 +2,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import routes from "./routes/index";
 import controller from "./controllers/controller";
+const swaggerUi = require("swagger-ui-express");
+const docs = require("./docs");
 const socketIO = require("socket.io");
 const http = require("http");
 const cors = require("cors");
@@ -14,6 +16,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(docs));
 app.use("/api", routes);
 
 const server = http.createServer(app);

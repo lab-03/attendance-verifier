@@ -15,11 +15,9 @@
       "description": "Local server"
     }
   ],
-  "tags": [
-    {
-      "names": ["QrCode requests", "FaceRecognition requests"]
-    }
-  ],
+  "tags": {
+    "names": ["QrCode requests", "FaceRecognition requests"]
+  },
   "paths": {
     "/qrcodes/create": {
       "post": {

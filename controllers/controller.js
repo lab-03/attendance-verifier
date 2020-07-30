@@ -113,7 +113,7 @@ class Controller extends EventEmitter {
     const { body } = req;
     this.request(
       "https://gp-qrcode.herokuapp.com/api/qrcodes/end",
-      "post",
+      "put",
       body,
       res
     );

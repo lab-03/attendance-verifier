@@ -1,0 +1,443 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "2.0.0",
+    "title": "Attendance verifier",
+    "description": "Attendance verifier service"
+  },
+  "servers": [
+    {
+      "url": "https://gp-verifier.herokuapp.com/api",
+      "description": "heroku development server"
+    },
+    {
+      "url": "http://localhost:8888/api",
+      "description": "Local server"
+    }
+  ],
+  "tags": [
+    {
+      "names": ["QrCode requests", "FaceRecognition requests"]
+    }
+  ],
+  "paths": {
+    "/qrcodes/create": {
+      "post": {
+        "tags": ["QrCode requests"],
+        "description": "Create a QrCode using a <b>UNIQUE</b> hash",
+        "operationId": "CreateQrCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd",
+                  "longitude": "10.807222",
+                  "latitude": "-90.984722"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Creation and Insertion succeeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "QrCode created"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Creation or Insertion failed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qrcodes": {
+      "get": {
+        "tags": ["QrCode requests"],
+        "description": "Get all QrCodes",
+        "operationId": "getallqrcodes",
+        "responses": {
+          "200": {
+            "description": "Qrcodes were retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "QrCodes retrieved",
+                  "data": [
+                    {
+                      "location": {
+                        "type": "Point",
+                        "coordinates": [10.807222, -90.984722]
+                      },
+                      "hash": "asndkWOMODMasmdao@#!$#!$fasdafs",
+                      "valid": true,
+                      "createdAt": "2020-02-15T16:45:27.981Z",
+                      "updatedAt": "2020-02-15T16:45:27.981Z"
+                    },
+                    {
+                      "location": {
+                        "type": "Point",
+                        "coordinates": [10.807222, -90.984722]
+                      },
+                      "hash": "asndkWfasdafs",
+                      "valid": false,
+                      "createdAt": "2020-02-15T17:45:27.981Z",
+                      "updatedAt": "2020-02-15T17:45:27.981Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no QrCodes in the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "No QrCodes were found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while retrieving data from the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qrcodes/get": {
+      "post": {
+        "tags": ["QrCode requests"],
+        "description": "Get a QrCode",
+        "operationId": "getaqrcode",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "QrCode retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "QrCode retrieved",
+                  "data": [
+                    {
+                      "location": {
+                        "type": "Point",
+                        "coordinates": [10.807222, -90.984722]
+                      },
+                      "hash": "asndasdasdm",
+                      "valid": true,
+                      "createdAt": "2020-02-15T16:45:27.981Z",
+                      "updatedAt": "2020-02-15T16:45:27.981Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "QrCode doesn't exist",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "No qrCode found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while retrieving data from the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qrcodes/delete": {
+      "delete": {
+        "tags": ["QrCode requests"],
+        "description": "Delete a QrCode",
+        "operationId": "deleteaqrcode",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "QrCode deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "QrCode deleted"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "QrCode doesn't exist",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "No qrCode found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while deleting data from the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qrcodes/end": {
+      "put": {
+        "tags": ["QrCode requests"],
+        "description": "Invalidates a QrCode",
+        "operationId": "invalidateaqrcode",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "QrCode invalidated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "QrCode has been invalidated"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "QrCode doesn't exist",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "No qrCode found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while deleting data from the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/qrcodes/attend": {
+      "post": {
+        "tags": ["QrCode requests"],
+        "description": "Verify attendance request",
+        "operationId": "VerAttReq",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd",
+                  "longitude": "10.807222",
+                  "latitude": "-90.984722"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Verification succeeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Attendance request has been verified"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "QrCode doesn't exist",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "No qrCode found"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Verification failed",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "The QrCode has been invalidated": {
+                    "value": {
+                      "status": "error",
+                      "message": "This qrCode is no longer valid"
+                    }
+                  },
+                  "Location is too far": {
+                    "value": {
+                      "status": "error",
+                      "message": "Your location is too far"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while retrieving data from the database",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fr": {
+      "post": {
+        "tags": ["FaceRecognition requests"],
+        "description": "Compare between two images to check if they contain the same face",
+        "operationId": "CompImages",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "original_face": "https://upload.wikimedia.org/wikipedia/commons/9/96/Steve_Carell_November_2014.jpg",
+                  "captured_face": "https://media1.popsugar-assets.com/files/thumbor/wPKqK3PAN3Tg-5NKK93bJPq_0-Q/66x304:2000x2238/fit-in/500x500/filters:format_auto-!!-:strip_icc-!!-/2019/12/11/092/n/1922398/3bc9a6e15df19424c50347.66856259_/i/Steve-Carell.jpg"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The images contain the same face",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The images don't contain the same face",
+            "content": {
+              "application/json": {
+                "example": {
+                  "value": {
+                    "status": "error",
+                    "message": false
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while trying to reach the face recognition service",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -120,7 +120,7 @@ describe("POST /api/qrcodes/attend", () => {
   });
 });
 
-describe("POST /api/qrcodes/end", () => {
+describe("PUT /api/qrcodes/end", () => {
   let tempHash = crypto.randomBytes(20).toString("hex");
   before(function(done) {
     let data = {
@@ -142,7 +142,7 @@ describe("POST /api/qrcodes/end", () => {
     };
     chai
       .request(server)
-      .post("/api/qrcodes/end")
+      .put("/api/qrcodes/end")
       .send(data)
       .end((err, res) => {
         res.should.have.status(200);
@@ -151,17 +151,17 @@ describe("POST /api/qrcodes/end", () => {
         else done();
       });
   }),
-    it("should fail at invalidating the qrCode because it doesn't exist", done => {
+    it("should fail at invalidating the QrCode because it doesn't exist", done => {
       let data = {
         hash: crypto.randomBytes(20).toString("hex")
       };
       chai
         .request(server)
-        .post("/api/qrcodes/end")
+        .put("/api/qrcodes/end")
         .send(data)
         .end((err, res) => {
           res.should.have.status(404);
-          assert.equal(res.body.message, "QrCode doesn't exist");
+          assert.equal(res.body.message, "No qrCode found");
           if (err) done(err);
           else done();
         });

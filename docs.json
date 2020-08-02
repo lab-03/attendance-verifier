@@ -15,11 +15,9 @@
       "description": "Local server"
     }
   ],
-  "tags": [
-    {
-      "names": ["QrCode requests", "FaceRecognition requests"]
-    }
-  ],
+  "tags": {
+    "names": ["QrCode requests", "FaceRecognition requests"]
+  },
   "paths": {
     "/qrcodes/create": {
       "post": {
@@ -54,189 +52,6 @@
           },
           "400": {
             "description": "Creation or Insertion failed",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "{Error details}"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qrcodes": {
-      "get": {
-        "tags": ["QrCode requests"],
-        "description": "Get all QrCodes",
-        "operationId": "getallqrcodes",
-        "responses": {
-          "200": {
-            "description": "Qrcodes were retrieved successfully",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "success",
-                  "message": "QrCodes retrieved",
-                  "data": [
-                    {
-                      "location": {
-                        "type": "Point",
-                        "coordinates": [10.807222, -90.984722]
-                      },
-                      "hash": "asndkWOMODMasmdao@#!$#!$fasdafs",
-                      "valid": true,
-                      "createdAt": "2020-02-15T16:45:27.981Z",
-                      "updatedAt": "2020-02-15T16:45:27.981Z"
-                    },
-                    {
-                      "location": {
-                        "type": "Point",
-                        "coordinates": [10.807222, -90.984722]
-                      },
-                      "hash": "asndkWfasdafs",
-                      "valid": false,
-                      "createdAt": "2020-02-15T17:45:27.981Z",
-                      "updatedAt": "2020-02-15T17:45:27.981Z"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "There is no QrCodes in the database",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "No QrCodes were found"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error while retrieving data from the database",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "{Error details}"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qrcodes/get": {
-      "post": {
-        "tags": ["QrCode requests"],
-        "description": "Get a QrCode",
-        "operationId": "getaqrcode",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "example": {
-                  "hash": "#HASDIONJifbw39edsa8dasffsd"
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "QrCode retrieved successfully",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "success",
-                  "message": "QrCode retrieved",
-                  "data": [
-                    {
-                      "location": {
-                        "type": "Point",
-                        "coordinates": [10.807222, -90.984722]
-                      },
-                      "hash": "asndasdasdm",
-                      "valid": true,
-                      "createdAt": "2020-02-15T16:45:27.981Z",
-                      "updatedAt": "2020-02-15T16:45:27.981Z"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "QrCode doesn't exist",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "No qrCode found"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error while retrieving data from the database",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "{Error details}"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/qrcodes/delete": {
-      "delete": {
-        "tags": ["QrCode requests"],
-        "description": "Delete a QrCode",
-        "operationId": "deleteaqrcode",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "example": {
-                  "hash": "#HASDIONJifbw39edsa8dasffsd"
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "QrCode deleted successfully",
-            "content": {
-              "application/json": {
-                "example": {
-                  "status": "success",
-                  "message": "QrCode deleted"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "QrCode doesn't exist",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "No qrCode found"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error while deleting data from the database",
             "content": {
               "application/json": {
                 "example": {
@@ -316,7 +131,12 @@
                 "example": {
                   "hash": "#HASDIONJifbw39edsa8dasffsd",
                   "longitude": "10.807222",
-                  "latitude": "-90.984722"
+                  "latitude": "-90.984722",
+                  "newAttendee": {
+                    "id": "20160000",
+                    "name": "name",
+                    "FRScore": 82
+                  }
                 }
               }
             }

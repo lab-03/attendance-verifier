@@ -87,7 +87,7 @@ class Controller extends EventEmitter {
       return 0;
     }
   }
-  getAttendees(hash) {
+  async getAttendees(hash) {
     try {
       attendeesModel.find({ hash }, (err, res) => {
         if (err) throw err;

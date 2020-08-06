@@ -28,8 +28,8 @@ io.on("connection", socket => {
   socket
     .on("add", async ({ hash, newAttendee }) => {
       console.log("addition request ", { hash, newAttendee });
-      if (await controller.saveAndNotify({ hash, newAttendee }))
-        socket.emit("adding");
+      let attendee = await controller.saveAttendee({ hash, newAttendee });
+      if (attendee) socket.emit("addition succeeded", attendee);
       else socket.emit("addition failed");
     })
     .on("update", ({ oldAttendee, updatedAttendee }) => {

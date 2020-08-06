@@ -56,6 +56,28 @@ class Controller extends EventEmitter {
     } else return 0;
   }
 
+  async saveAttendee({ hash, newAttendee }) {
+    let attendee = new attendeesModel({
+      id: newAttendee.id,
+      name: newAttendee.name,
+      hash,
+      FRScore: newAttendee.FRScore || 100
+    });
+    let res = await attendeesModel.find(
+      { id: attendee.id, hash: attendee.hash },
+      (err, res) => {
+        return res;
+      }
+    );
+    console.log("res: ", res.length);
+    if (res.length === 0) {
+      attendee.save(err => {
+        if (err) throw err;
+      });
+      return attendee;
+    } else return 0;
+  }
+
   async updateAttendee(oldAttendee, updatedAttendee) {
     console.log("updating", oldAttendee);
     try {

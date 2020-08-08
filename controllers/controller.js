@@ -6,7 +6,7 @@ import attendeesModel from "../database/models/attendees";
 const util = new Util();
 
 class Controller extends EventEmitter {
-  request(url, method, body, res, func = null) {
+  request(url, method, body, res) {
     let statusCode = 200;
     let options = {
       method,
@@ -22,7 +22,6 @@ class Controller extends EventEmitter {
       .then(response => {
         if (statusCode === 200) {
           util.setSuccess(statusCode, response.message, response.data);
-          if (func === "attendByQr") this.saveAndNotify(body);
         } else util.setError(statusCode, response.message);
         console.log(response.message);
         return util.send(res);
@@ -126,21 +125,75 @@ class Controller extends EventEmitter {
       res
     );
   }
-  attendByQr(req, res) {
-    const { body } = req;
-    this.request(
-      "https://gp-qrcode.herokuapp.com/api/qrcodes/attend",
-      "post",
-      body,
-      res,
-      "attendByQr"
-    );
+  attend(req, res) {
+    const {
+      hash,
+      longitude,
+      latitude,
+      original_face,
+      captured_face
+    } = req.body;
+    try {
+      this.verifyQr({ hash, longitude, latitude }, (statusCode, message) => {
+        if (statusCode === 200) {
+          console.log("Qr check success");
+          if (original_face && captured_face) {
+            this.verifyFaceRec(
+              { original_face, captured_face },
+              (frStatusCode, temp) => {
+                if (frStatusCode === 200 && temp) {
+                  console.log("face recognition check success");
+                  console.log(temp, frStatusCode);
+                  util.setSuccess(frStatusCode, message);
+                  return util.send(res);
+                } else if (!temp) {
+                  util.setError(400, "face recognition check failed");
+                  return util.send(res);
+                }
+              }
+            );
+          } else {
+            util.setSuccess(statusCode, message);
+            return util.send(res);
+          }
+        } else {
+          console.log("Qr check failed");
+          util.setError(statusCode, message);
+          return util.send(res);
+        }
+      });
+    } catch (err) {
+      console.log(err);
+      util.setError(500, "OOps! something happened");
+      return util.send(res);
+    }
   }
-  attendByFR(req, res) {
+  verifyQr(data, cb) {
     let options = {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(data)
+    };
+    let statusCode = 200;
+    fetch("https://gp-qrcode.herokuapp.com/api/qrcodes/attend", options)
+      .then(response => {
+        statusCode = response.status;
+        return response.json();
+      })
+      .then(response => {
+        cb(statusCode, response.message);
+      })
+      .catch(err => {
+        console.error(err);
+        util.setError(500, "OOps! something happened");
+        return util.send(res);
+      });
+  }
+  verifyFaceRec(data, cb) {
+    let options = {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(data)
     };
     let statusCode = 200;
     fetch("https://fr-api.herokuapp.com/verify", options)
@@ -151,11 +204,13 @@ class Controller extends EventEmitter {
       .then(response => {
         const temp = response.same_person;
         if (temp === true) {
-          util.setSuccess(statusCode, temp);
+          // util.setSuccess(statusCode, temp);
+          cb(statusCode, temp);
         } else if (temp === false) {
-          util.setError(400, temp);
+          cb(400, temp);
+          // util.setError(400, temp);
         }
-        return util.send(res);
+        // return util.send(res);
       })
       .catch(err => {
         console.error(err);

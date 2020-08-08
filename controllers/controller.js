@@ -109,11 +109,21 @@ class Controller extends EventEmitter {
     const { body } = req;
     console.log(body);
 
-    this.request("http://localhost:5000/api/qrcodes/create", "post", body, res);
+    this.request(
+      "https://gp-qrcode.herokuapp.com/api/qrcodes/create",
+      "post",
+      body,
+      res
+    );
   }
   invalidate(req, res) {
     const { body } = req;
-    this.request("http://localhost:5000/api/qrcodes/end", "put", body, res);
+    this.request(
+      "https://gp-qrcode.herokuapp.com/api/qrcodes/end",
+      "put",
+      body,
+      res
+    );
   }
   attend(req, res) {
     const {
@@ -165,7 +175,7 @@ class Controller extends EventEmitter {
       body: JSON.stringify(data)
     };
     let statusCode = 200;
-    fetch("http://localhost:5000/api/qrcodes/attend", options)
+    fetch("https://gp-qrcode.herokuapp.com/api/qrcodes/attend", options)
       .then(response => {
         statusCode = response.status;
         return response.json();

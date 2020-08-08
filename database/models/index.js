@@ -1,10 +1,9 @@
 import configJson from "../config/config";
 import mongoose, { mongo } from "mongoose";
 
-const env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
+const env = process.env.NODE_ENV;
 
 const config = configJson[env];
-console.log("using environment: ", env);
 
 mongoose.connect(config.url, {
   useNewUrlParser: true,

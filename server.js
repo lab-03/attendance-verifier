@@ -28,8 +28,8 @@ io.on("connection", socket => {
   socket
     .on("add", async ({ hash, newAttendee }) => {
       console.log("addition request ", { hash, newAttendee });
-      if (await controller.saveAndNotify({ hash, newAttendee }))
-        socket.emit("adding");
+      let attendee = await controller.saveAttendee({ hash, newAttendee });
+      if (attendee) socket.emit("addition succeeded", attendee);
       else socket.emit("addition failed");
     })
     .on("update", ({ oldAttendee, updatedAttendee }) => {
@@ -94,6 +94,7 @@ setInterval(
 const PORT = process.env.PORT || 8888;
 server.listen(PORT, () => {
   console.log("server is running on port " + PORT);
+  console.log("using environment: ", process.env.NODE_ENV);
 });
 
 module.exports = server;

@@ -295,9 +295,15 @@
               "application/json": {
                 "example": {
                   "status": "success",
-                  "message": "Attendance request has been verified",
+                  "message": "attendee has been added to the list",
                   "data": {
-                    "FRScore": 37.03
+                    "attendee": {
+                      "_id": "5f3046e1ffd55031e99749c3",
+                      "id": 100,
+                      "name": "hamada",
+                      "hash": "X1tSMHyoGr9Z7z12xZ3F3uM2",
+                      "FRScore": 82
+                    }
                   }
                 }
               }

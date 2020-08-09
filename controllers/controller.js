@@ -140,13 +140,13 @@ class Controller extends EventEmitter {
           if (original_face && captured_face) {
             this.verifyFaceRec(
               { original_face, captured_face },
-              (frStatusCode, temp) => {
-                if (frStatusCode === 200 && temp) {
+              (frStatusCode, samePerson, FRScore) => {
+                if (frStatusCode === 200 && samePerson) {
                   console.log("face recognition check success");
-                  console.log(temp, frStatusCode);
-                  util.setSuccess(frStatusCode, message);
+                  console.log(samePerson, frStatusCode);
+                  util.setSuccess(frStatusCode, message, { FRScore });
                   return util.send(res);
-                } else if (!temp) {
+                } else if (!samePerson) {
                   util.setError(400, "face recognition check failed");
                   return util.send(res);
                 }
@@ -202,13 +202,13 @@ class Controller extends EventEmitter {
         return response.json();
       })
       .then(response => {
-        const temp = response.same_person;
-        if (temp === true) {
-          // util.setSuccess(statusCode, temp);
-          cb(statusCode, temp);
-        } else if (temp === false) {
-          cb(400, temp);
-          // util.setError(400, temp);
+        const { same_person, same_person_accuracy } = response;
+        if (same_person === true) {
+          // util.setSuccess(statusCode, same_person);
+          cb(statusCode, same_person, same_person_accuracy);
+        } else if (same_person === false) {
+          cb(400, same_person);
+          // util.setError(400, same_person);
         }
         // return util.send(res);
       })

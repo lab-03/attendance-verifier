@@ -147,7 +147,10 @@
               "application/json": {
                 "example": {
                   "status": "success",
-                  "message": "Attendance request has been verified"
+                  "message": "Attendance request has been verified",
+                  "data": {
+                    "FRScore": 37.03
+                  }
                 }
               }
             }

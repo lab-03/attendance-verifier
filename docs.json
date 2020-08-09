@@ -16,7 +16,7 @@
     }
   ],
   "tags": {
-    "names": ["QrCode requests", "FaceRecognition requests"]
+    "names": ["QrCode requests", "FaceRecognition requests", "Attend requests"]
   },
   "paths": {
     "/qrcodes/create": {
@@ -118,7 +118,7 @@
         }
       }
     },
-    "/qrcodes/attend": {
+    "/qrcodes/verify": {
       "post": {
         "tags": ["QrCode requests"],
         "description": "Verify attendance request",
@@ -253,6 +253,58 @@
           },
           "500": {
             "description": "Error while trying to reach the face recognition service",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "{Error details}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attend": {
+      "post": {
+        "tags": ["Attend requests"],
+        "description": "record a student in attendees list",
+        "operationId": "attend",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "example": {
+                  "hash": "#HASDIONJifbw39edsa8dasffsd",
+                  "newAttendee": {
+                    "id": "20160000",
+                    "name": "example",
+                    "FRScore": 100
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Verification succeeded",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Attendance request has been verified",
+                  "data": {
+                    "FRScore": 37.03
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error while trying to add new attendee to the list",
             "content": {
               "application/json": {
                 "example": {

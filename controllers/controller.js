@@ -32,13 +32,24 @@ class Controller extends EventEmitter {
         return util.send(res);
       });
   }
-  async saveAndNotify({ hash, newAttendee }) {
-    let attendee = await this.saveAttendee({ hash, newAttendee });
-    console.log(attendee);
-    if (attendee) {
-      this.emit("send attendee", attendee);
-      return 1;
-    } else return 0;
+  async saveAndNotify(req, res) {
+    const { hash, newAttendee } = req.body;
+    try {
+      let attendee = await this.saveAttendee({ hash, newAttendee });
+      console.log(attendee);
+      if (attendee) {
+        this.emit("send attendee", attendee);
+        util.setSuccess(200, "new attendee has been added to the list", {
+          attendee
+        });
+        util.send(res);
+        return 1;
+      }
+    } catch (err) {
+      util.setError(500, err);
+      util.send(res);
+      return 0;
+    }
   }
 
   async saveAttendee({ hash, newAttendee }) {
@@ -59,8 +70,8 @@ class Controller extends EventEmitter {
       attendee.save(err => {
         if (err) throw err;
       });
-      return attendee;
-    } else return 0;
+    }
+    return attendee;
   }
 
   async updateAttendee(oldAttendee, updatedAttendee) {
@@ -125,7 +136,7 @@ class Controller extends EventEmitter {
       res
     );
   }
-  attend(req, res) {
+  verify(req, res) {
     const {
       hash,
       longitude,

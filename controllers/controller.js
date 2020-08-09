@@ -35,20 +35,21 @@ class Controller extends EventEmitter {
   async saveAndNotify(req, res) {
     const { hash, newAttendee } = req.body;
     try {
-      let attendee = await this.saveAttendee({ hash, newAttendee });
-      console.log(attendee);
-      if (attendee) {
+      let { attendee, duplicate } = await this.saveAttendee({
+        hash,
+        newAttendee
+      });
+      if (attendee && !duplicate) {
         this.emit("send attendee", attendee);
-        util.setSuccess(200, "new attendee has been added to the list", {
-          attendee
-        });
-        util.send(res);
-        return 1;
       }
+      util.setSuccess(200, "attendee has been added to the list", {
+        attendee
+      });
+      return util.send(res);
     } catch (err) {
-      util.setError(500, err);
-      util.send(res);
-      return 0;
+      console.log(err);
+      util.setError(500, "OOps! something happened");
+      return util.send(res);
     }
   }
 
@@ -59,19 +60,19 @@ class Controller extends EventEmitter {
       hash,
       FRScore: newAttendee.FRScore || 100
     });
-    let res = await attendeesModel.find(
+    let duplicate = await attendeesModel.find(
       { id: attendee.id, hash: attendee.hash },
-      (err, res) => {
-        return res;
+      (err, duplicate) => {
+        return duplicate;
       }
     );
-    console.log("res: ", res.length);
-    if (res.length === 0) {
+    console.log("duplicate: ", duplicate.length);
+    if (duplicate.length === 0) {
       attendee.save(err => {
         if (err) throw err;
       });
     }
-    return attendee;
+    return { attendee, duplicate: duplicate.length };
   }
 
   async updateAttendee(oldAttendee, updatedAttendee) {

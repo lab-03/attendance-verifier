@@ -32,13 +32,25 @@ class Controller extends EventEmitter {
         return util.send(res);
       });
   }
-  async saveAndNotify({ hash, newAttendee }) {
-    let attendee = await this.saveAttendee({ hash, newAttendee });
-    console.log(attendee);
-    if (attendee) {
-      this.emit("send attendee", attendee);
-      return 1;
-    } else return 0;
+  async saveAndNotify(req, res) {
+    const { hash, newAttendee } = req.body;
+    try {
+      let { attendee, duplicate } = await this.saveAttendee({
+        hash,
+        newAttendee
+      });
+      if (attendee && !duplicate) {
+        this.emit("send attendee", attendee);
+      }
+      util.setSuccess(200, "attendee has been added to the list", {
+        attendee
+      });
+      return util.send(res);
+    } catch (err) {
+      console.log(err);
+      util.setError(500, "OOps! something happened");
+      return util.send(res);
+    }
   }
 
   async saveAttendee({ hash, newAttendee }) {
@@ -48,19 +60,19 @@ class Controller extends EventEmitter {
       hash,
       FRScore: newAttendee.FRScore || 100
     });
-    let res = await attendeesModel.find(
+    let duplicate = await attendeesModel.find(
       { id: attendee.id, hash: attendee.hash },
-      (err, res) => {
-        return res;
+      (err, duplicate) => {
+        return duplicate;
       }
     );
-    console.log("res: ", res.length);
-    if (res.length === 0) {
+    console.log("duplicate: ", duplicate.length);
+    if (duplicate.length === 0) {
       attendee.save(err => {
         if (err) throw err;
       });
-      return attendee;
-    } else return 0;
+    }
+    return { attendee, duplicate: duplicate.length };
   }
 
   async updateAttendee(oldAttendee, updatedAttendee) {
@@ -125,7 +137,7 @@ class Controller extends EventEmitter {
       res
     );
   }
-  attend(req, res) {
+  verify(req, res) {
     const {
       hash,
       longitude,

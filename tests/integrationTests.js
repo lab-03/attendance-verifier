@@ -48,7 +48,7 @@ describe("POST /api/qrcodes/create", () => {
   });
 });
 
-describe("POST /api/qrcodes/attend", () => {
+describe("POST /api/qrcodes/verify", () => {
   it("should attend a student", done => {
     let data = {
       hash,
@@ -57,7 +57,7 @@ describe("POST /api/qrcodes/attend", () => {
     };
     chai
       .request(server)
-      .post("/api/qrcodes/attend")
+      .post("/api/qrcodes/verify")
       .send(data)
       .end((err, res) => {
         res.should.have.status(200);
@@ -74,7 +74,7 @@ describe("POST /api/qrcodes/attend", () => {
     };
     chai
       .request(server)
-      .post("/api/qrcodes/attend")
+      .post("/api/qrcodes/verify")
       .send(data)
       .end((err, res) => {
         res.should.have.status(404);
@@ -91,7 +91,7 @@ describe("POST /api/qrcodes/attend", () => {
     };
     chai
       .request(server)
-      .post("/api/qrcodes/attend")
+      .post("/api/qrcodes/verify")
       .send(data)
       .end((err, res) => {
         res.should.have.status(400);
@@ -109,7 +109,7 @@ describe("POST /api/qrcodes/attend", () => {
     };
     chai
       .request(server)
-      .post("/api/qrcodes/attend")
+      .post("/api/qrcodes/verify")
       .send(data)
       .end((err, res) => {
         res.should.have.status(400);
